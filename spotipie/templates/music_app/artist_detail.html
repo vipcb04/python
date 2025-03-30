@@ -1,0 +1,48 @@
+{% extends 'music_app/base.html' %}
+
+{% block title %}{{ artist.name }} - Ứng dụng nghe nhạc{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        {% if artist.image %}
+            <img src="{{ artist.image.url }}" class="img-fluid rounded" alt="{{ artist.name }}">
+        {% else %}
+            <div class="bg-secondary text-white text-center p-5 rounded">Không có ảnh</div>
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        <h1>{{ artist.name }}</h1>
+        <p>{{ artist.bio }}</p>
+    </div>
+</div>
+
+<h2 class="mb-3">Bài hát của {{ artist.name }}</h2>
+<div class="row">
+    {% for song in songs %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if song.cover_image %}
+                <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }}">
+            {% else %}
+                <div class="bg-secondary text-white text-center p-5">Không có ảnh</div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ song.title }}</h5>
+                <button class="btn btn-primary play-song" 
+                    data-song-url="{{ song.audio_file.url }}" 
+                    data-song-title="{{ song.title }}" 
+                    data-song-artist="{{ artist.name }}">
+                    Phát
+                </button>
+                <a href="{% url 'song_detail' song.id %}" class="btn btn-outline-light">Chi tiết</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p>Nghệ sĩ này chưa có bài hát nào.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

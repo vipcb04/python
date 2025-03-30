@@ -1,0 +1,78 @@
+{% extends 'music_app/base.html' %}
+
+{% block title %}Trang chủ - Spotify Clone{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="section-title">Bài hát mới phát hành</h2>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+        {% for song in songs %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-img-container">
+                    <a href="{% url 'song_detail' song.id %}" class="card-link">
+                        {% if song.cover_image %}
+                            <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300" class="card-img-top" alt="Album cover">
+                        {% endif %}
+                    </a>
+                    <button class="card-play-button play-song" 
+                        data-song-url="{{ song.audio_file.url }}" 
+                        data-song-title="{{ song.title }}" 
+                        data-song-artist="{{ song.artist.name }}"
+                        data-song-id="{{ song.id }}"
+                        {% if song.cover_image %}
+                        data-song-image="{{ song.cover_image.url }}"
+                        {% endif %}>
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <a href="{% url 'song_detail' song.id %}" class="text-decoration-none">
+                    <h5 class="card-title">{{ song.title }}</h5>
+                </a>
+                <a href="{% url 'artist_detail' song.artist.id %}" class="text-decoration-none">
+                    <p class="card-text">{{ song.artist.name }}</p>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>Chưa có bài hát nào.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="section-title">Nghệ sĩ nổi bật</h2>
+       
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-4">
+        {% for artist in artists %}
+        <div class="col">
+            <div class="card h-100 text-center">
+                <a href="{% url 'artist_detail' artist.id %}" class="card-link">
+                    <div class="card-img-container">
+                        {% if artist.image %}
+                            <img src="{{ artist.image.url }}" class="card-img-top artist-img" alt="{{ artist.name }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300" class="card-img-top artist-img" alt="Artist image">
+                        {% endif %}
+                    </div>
+                    <h5 class="card-title">{{ artist.name }}</h5>
+                    <p class="card-text">Nghệ sĩ</p>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>Chưa có nghệ sĩ nào.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

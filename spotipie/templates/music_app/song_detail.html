@@ -1,0 +1,87 @@
+{% extends 'music_app/base.html' %}
+
+{% block title %}{{ song.title }} - Ứng dụng nghe nhạc{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Màu nền tối và font chữ hiện đại */
+    body {
+        background-color: #121212;
+        color: #FFFFFF;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    /* Card chứa thông tin bài hát */
+    .song-card {
+        background-color: #181818;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    /* Hình ảnh bìa */
+    .song-cover {
+        border-radius: 8px;
+        width: 100%;
+        object-fit: cover;
+    }
+    /* Tiêu đề bài hát */
+    .song-title {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    /* Tên nghệ sĩ */
+    .artist-name {
+        font-size: 1.2rem;
+        color: #1DB954; /* Màu xanh đặc trưng của Spotify */
+        text-decoration: none;
+    }
+    .artist-name:hover {
+        text-decoration: underline;
+    }
+    /* Nút phát bài hát */
+    .play-song {
+        background-color: #1DB954;
+        border: none;
+        color: #FFFFFF;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 50px;
+        transition: background-color 0.3s ease;
+    }
+    .play-song:hover {
+        background-color: #17a44d;
+    }
+    /* Định dạng ngày tạo */
+    .song-date {
+        font-size: 0.9rem;
+        color: #B3B3B3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="song-card row mb-4">
+    <div class="col-md-4">
+        {% if song.cover_image %}
+            <img src="{{ song.cover_image.url }}" class="song-cover" alt="{{ song.title }}">
+        {% else %}
+            <div class="bg-secondary text-white text-center p-5 rounded">Không có ảnh</div>
+        {% endif %}
+    </div>
+    <div class="col-md-8 d-flex flex-column justify-content-center">
+        <h1 class="song-title">{{ song.title }}</h1>
+        <h3>
+            <a href="{% url 'artist_detail' song.artist.id %}" class="artist-name">
+                {{ song.artist.name }}
+            </a>
+        </h3>
+        <p class="song-date">Ngày tạo: {{ song.created_at|date:"d/m/Y" }}</p>
+        
+        <button class="btn play-song mt-3 play-song" 
+            data-song-url="{{ song.audio_file.url }}" 
+            data-song-title="{{ song.title }}" 
+            data-song-artist="{{ song.artist.name }}">
+            Phát bài hát
+        </button>
+    </div>
+</div>
+{% endblock %}
