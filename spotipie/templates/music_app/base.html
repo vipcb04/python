@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Ứng dụng nghe nhạc{% endblock %}</title>
+   
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -406,7 +407,19 @@
             align-items: center;
             margin-bottom: 8px;
         }
+        .dropdown-menu {
+    background-color: var(--spotify-lighter-gray);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    padding: 8px 0;
+        }
+
         
+
+        .dropdown-divider {
+            border-top: 1px solid var(--spotify-light-gray);
+            margin: 4px 0;
+        }
         .player-control-button {
             background: none;
             border: none;
@@ -532,7 +545,33 @@
         .player-volume-slider:hover .player-volume-slider-fill {
             background-color: var(--spotify-green);
         }
-        
+        .dropdown-menu {
+    background-color: var(--spotify-lighter-gray);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    padding: 8px 0;
+        }
+
+        a.dropdown-item,
+        button.dropdown-item {
+            color: var(--spotify-light-white);
+            font-size: 14px;
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        a.dropdown-item:hover,
+        button.dropdown-item:hover {
+            background-color: var(--spotify-light-gray);
+            color: var(--spotify-white);
+        }
+
+        .dropdown-divider {
+            border-top: 1px solid var(--spotify-light-gray);
+            margin: 4px 0;
+        }
         /* Responsive styles */
         @media (max-width: 992px) {
             .sidebar {
@@ -610,7 +649,7 @@
         <div class="sidebar-logo">
             <a href="{% url 'home' %}">
                 <i class="fab fa-spotify me-2"></i>
-                <span>Spotify Clone</span>
+                <span>Spotipie</span>
             </a>
         </div>
         
@@ -634,9 +673,16 @@
                 </a>
             </div>
         </div>
-        
+        <div class="sidebar-nav-item">
+            <a href="{% url 'song_form' %}">
+                <i class="fas fa-plus-circle"></i>
+                <span>Tạo bài hát mới</span>
+            </a>
+        </div>
         <div class="sidebar-divider"></div>
+         <div class="sidebar-nav-item">
         
+    </div>
         <div class="sidebar-nav">
             <div class="sidebar-nav-item">
                 <a href="#">
@@ -657,17 +703,9 @@
         <div class="sidebar-playlists">
             <h6>Playlist</h6>
             <div class="sidebar-playlist-item">
-                <a href="#">Nhạc Việt hot nhất</a>
+                <a href="#">Day se chua cac playlist</a>
             </div>
-            <div class="sidebar-playlist-item">
-                <a href="#">Top hits 2025</a>
-            </div>
-            <div class="sidebar-playlist-item">
-                <a href="#">Chill / Relax</a>
-            </div>
-            <div class="sidebar-playlist-item">
-                <a href="#">Workout playlist</a>
-            </div>
+            
         </div>
     </div>
     
@@ -680,10 +718,31 @@
             </form>
             
             <div class="user-menu">
-                <a href="{% url 'admin:index' %}">
-                    <i class="fas fa-user-circle"></i>
-                    <span>Admin</span>
-                </a>
+                {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i>
+                            <span>{{ user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}">Hồ sơ nghệ sĩ</a></li>
+                            <li><a class="dropdown-item" href="{% url 'song_form' %}">Tạo bài hát mới</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                            
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Đăng nhập</span>
+                    </a>
+                {% endif %}
             </div>
         </div>
         
@@ -745,7 +804,8 @@
         
         <audio id="audio-player"></audio>
     </div>
-
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const audioPlayer = document.getElementById('audio-player');
@@ -1009,45 +1069,50 @@
             
             // Handle keyboard shortcuts
             document.addEventListener('keydown', function(e) {
-                // Only handle shortcuts if a song is loaded
-                if (!audioPlayer.src) return;
-                
-                switch(e.code) {
-                    case 'Space': // Play/Pause with Space
-                        e.preventDefault();
-                        if (isPlaying) {
-                            audioPlayer.pause();
-                        } else {
-                            audioPlayer.play();
-                        }
-                        isPlaying = !isPlaying;
-                        updatePlayButton();
-                        savePlayerState();
-                        break;
-                    case 'ArrowRight': // Forward 5 seconds with Right Arrow
-                        audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 5, audioPlayer.duration);
-                        savePlayerState();
-                        break;
-                    case 'ArrowLeft': // Rewind 5 seconds with Left Arrow
-                        audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 5, 0);
-                        savePlayerState();
-                        break;
-                    case 'ArrowUp': // Increase volume with Up Arrow
-                        e.preventDefault();
-                        audioPlayer.volume = Math.min(audioPlayer.volume + 0.1, 1);
-                        volumeSliderFill.style.width = (audioPlayer.volume * 100) + '%';
-                        updateVolumeIcon();
-                        savePlayerState();
-                        break;
-                    case 'ArrowDown': // Decrease volume with Down Arrow
-                        e.preventDefault();
-                        audioPlayer.volume = Math.max(audioPlayer.volume - 0.1, 0);
-                        volumeSliderFill.style.width = (audioPlayer.volume * 100) + '%';
-                        updateVolumeIcon();
-                        savePlayerState();
-                        break;
-                }
-            });
+            // Skip keyboard shortcuts if user is typing in an input field or textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            // Only handle shortcuts if a song is loaded
+            if (!audioPlayer.src) return;
+            
+            switch(e.code) {
+                case 'Space': // Play/Pause with Space
+                    e.preventDefault();
+                    if (isPlaying) {
+                        audioPlayer.pause();
+                    } else {
+                        audioPlayer.play();
+                    }
+                    isPlaying = !isPlaying;
+                    updatePlayButton();
+                    savePlayerState();
+                    break;
+                case 'ArrowRight': // Forward 5 seconds with Right Arrow
+                    audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 5, audioPlayer.duration);
+                    savePlayerState();
+                    break;
+                case 'ArrowLeft': // Rewind 5 seconds with Left Arrow
+                    audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 5, 0);
+                    savePlayerState();
+                    break;
+                case 'ArrowUp': // Increase volume with Up Arrow
+                    e.preventDefault();
+                    audioPlayer.volume = Math.min(audioPlayer.volume + 0.1, 1);
+                    volumeSliderFill.style.width = (audioPlayer.volume * 100) + '%';
+                    updateVolumeIcon();
+                    savePlayerState();
+                    break;
+                case 'ArrowDown': // Decrease volume with Down Arrow
+                    e.preventDefault();
+                    audioPlayer.volume = Math.max(audioPlayer.volume - 0.1, 0);
+                    volumeSliderFill.style.width = (audioPlayer.volume * 100) + '%';
+                    updateVolumeIcon();
+                    savePlayerState();
+                    break;
+            }
+        });
         });
     </script>
 </body>

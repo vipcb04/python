@@ -1,0 +1,35 @@
+{% extends "music_app/base.html" %}
+
+{% block title %}Tạo bài hát mới{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="section-title mb-4">Tạo bài hát mới</h2>
+    
+    <div class="alert alert-info">
+        Bạn đang tạo bài hát với tư cách nghệ sĩ: <strong>{{ artist.name }}</strong>
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" action="{% url 'add_song' %}">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="title" class="form-label">Tên bài hát</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="audio_file" class="form-label">File nhạc</label>
+            <input type="file" class="form-control" id="audio_file" name="audio_file" accept="audio/*" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="cover_image" class="form-label">Ảnh bìa</label>
+            <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*">
+        </div>
+        
+        <button type="submit" class="btn btn-success">Lưu bài hát</button>
+    </form>
+</div>
+{% endblock %}
+

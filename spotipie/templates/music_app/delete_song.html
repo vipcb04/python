@@ -1,0 +1,48 @@
+{% extends "music_app/base.html" %}
+
+{% block title %}Xóa bài hát{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card bg-dark text-white">
+        <div class="card-header">
+            <h2 class="card-title">Xác nhận xóa bài hát</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">Cảnh báo!</h4>
+                <p>Bạn có chắc chắn muốn xóa bài hát "<strong>{{ song.title }}</strong>"?</p>
+                <p>Hành động này không thể hoàn tác.</p>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    {% if song.cover_image %}
+                        <img src="{{ song.cover_image.url }}" class="img-fluid rounded" alt="{{ song.title }}">
+                    {% else %}
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-music fa-3x text-white"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-8">
+                    <h3>{{ song.title }}</h3>
+                    <p>Nghệ sĩ: {{ song.artist.name }}</p>
+                    <p>Ngày tạo: {{ song.created_at|date:"d/m/Y" }}</p>
+                    <audio controls style="width: 100%;">
+                        <source src="{{ song.audio_file.url }}" type="audio/mpeg">
+                        Trình duyệt của bạn không hỗ trợ phát âm thanh.
+                    </audio>
+                </div>
+            </div>
+            
+            <form method="POST" action="{% url 'delete_song' song.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+                <a href="{% url 'song_detail' song.id %}" class="btn btn-secondary">Hủy</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -3,46 +3,95 @@
 {% block title %}{{ artist.name }} - Ứng dụng nghe nhạc{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-4">
-        {% if artist.image %}
-            <img src="{{ artist.image.url }}" class="img-fluid rounded" alt="{{ artist.name }}">
-        {% else %}
-            <div class="bg-secondary text-white text-center p-5 rounded">Không có ảnh</div>
-        {% endif %}
-    </div>
-    <div class="col-md-8">
-        <h1>{{ artist.name }}</h1>
-        <p>{{ artist.bio }}</p>
-    </div>
-</div>
-
-<h2 class="mb-3">Bài hát của {{ artist.name }}</h2>
-<div class="row">
-    {% for song in songs %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            {% if song.cover_image %}
-                <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }}">
+<div class="container">
+    <!-- Artist Information (Top Section) -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            {% if artist.image %}
+                <img src="{{ artist.image.url }}" class="img-fluid rounded" alt="{{ artist.name }}">
             {% else %}
-                <div class="bg-secondary text-white text-center p-5">Không có ảnh</div>
+                <div class="bg-dark text-white text-center p-5 rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                    <i class="fas fa-user fa-5x"></i>
+                </div>
             {% endif %}
-            <div class="card-body">
-                <h5 class="card-title">{{ song.title }}</h5>
-                <button class="btn btn-primary play-song" 
-                    data-song-url="{{ song.audio_file.url }}" 
-                    data-song-title="{{ song.title }}" 
-                    data-song-artist="{{ artist.name }}">
-                    Phát
-                </button>
-                <a href="{% url 'song_detail' song.id %}" class="btn btn-outline-light">Chi tiết</a>
-            </div>
+        </div>
+        <div class="col-md-8">
+            <h1 class="mb-3">{{ artist.name }}</h1>
+            <p class="lead">{{ artist.bio|linebreaks|default:"Chưa có thông tin giới thiệu." }}</p>
+            
+            <!-- If the current user is this artist, show edit button -->
+            {% if user.is_authenticated and user.artist_profile == artist %}
+            <a href="{% url 'update_profile' %}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i> Cập nhật thông tin
+            </a>
+            {% endif %}
         </div>
     </div>
-    {% empty %}
-    <div class="col-12">
-        <p>Nghệ sĩ này chưa có bài hát nào.</p>
+
+    <!-- Songs Section (Bottom) -->
+    <h2 class="section-title mb-3">Bài hát của {{ artist.name }}</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for song in songs %}
+        <div class="col mb-4">
+            <div class="card h-100">
+                <div class="card-img-container">
+                    {% if song.cover_image %}
+                        <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }}">
+                    {% else %}
+                        <div class="bg-secondary text-white text-center p-5 d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-music fa-3x"></i>
+                        </div>
+                    {% endif %}
+                    <button class="card-play-button play-song" 
+                        data-song-url="{{ song.audio_file.url }}" 
+                        data-song-title="{{ song.title }}" 
+                        data-song-artist="{{ artist.name }}"
+                        data-song-id="{{ song.id }}"
+                        {% if song.cover_image %}
+                        data-song-image="{{ song.cover_image.url }}"
+                        {% endif %}>
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ song.title }}</h5>
+                    <div class="d-flex mt-3">
+                        <button class="btn btn-success me-2 play-song" 
+                            data-song-url="{{ song.audio_file.url }}" 
+                            data-song-title="{{ song.title }}" 
+                            data-song-artist="{{ artist.name }}"
+                            data-song-id="{{ song.id }}"
+                            {% if song.cover_image %}
+                            data-song-image="{{ song.cover_image.url }}"
+                            {% endif %}>
+                            <i class="fas fa-play me-1"></i> Phát
+                        </button>
+                        <a href="{% url 'song_detail' song.id %}" class="btn btn-outline-light">Chi tiết</a>
+                        
+                        <!-- If the current user is this artist, show edit/delete buttons -->
+                        {% if user.is_authenticated and user.artist_profile == artist %}
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="songActions{{ song.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="songActions{{ song.id }}">
+                                <li><a class="dropdown-item" href="{% url 'update_song' song.id %}"><i class="fas fa-edit me-2"></i> Sửa</a></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'delete_song' song.id %}"><i class="fas fa-trash me-2"></i> Xóa</a></li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Nghệ sĩ này chưa có bài hát nào.
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 {% endblock %}
+

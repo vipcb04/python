@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'music_app'
 ]
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'  # Chuyển hướng đến trang chủ sau khi đăng nhập
+LOGOUT_REDIRECT_URL = '/'  # Chuyển hướng đến trang chủ sau khi đăng xuất
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 MIDDLEWARE = [

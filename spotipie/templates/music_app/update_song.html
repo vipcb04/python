@@ -1,0 +1,51 @@
+{% extends "music_app/base.html" %}
+
+{% block title %}Cập nhật bài hát{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="section-title mb-4">Cập nhật bài hát</h2>
+    
+    <div class="alert alert-info">
+        Bạn đang cập nhật bài hát với tư cách nghệ sĩ: <strong>{{ song.artist.name }}</strong>
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" action="{% url 'update_song' song.id %}">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="title" class="form-label">Tên bài hát</label>
+            <input type="text" class="form-control" id="title" name="title" value="{{ song.title }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="audio_file" class="form-label">File nhạc</label>
+            <div class="mb-2">
+                <audio controls style="width: 100%;">
+                    <source src="{{ song.audio_file.url }}" type="audio/mpeg">
+                    Trình duyệt của bạn không hỗ trợ phát âm thanh.
+                </audio>
+                <small class="text-muted">File hiện tại: {{ song.audio_file.name }}</small>
+            </div>
+            <input type="file" class="form-control" id="audio_file" name="audio_file" accept="audio/*">
+            <small class="form-text text-muted">Chỉ tải lên file mới nếu bạn muốn thay đổi.</small>
+        </div>
+        
+        <div class="mb-3">
+            <label for="cover_image" class="form-label">Ảnh bìa</label>
+            {% if song.cover_image %}
+                <div class="mb-2">
+                    <img src="{{ song.cover_image.url }}" style="width: 100px; height: 100px; object-fit: cover;" class="rounded" alt="{{ song.title }}">
+                    <small class="text-muted">Ảnh hiện tại: {{ song.cover_image.name }}</small>
+                </div>
+            {% endif %}
+            <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*">
+            <small class="form-text text-muted">Chỉ tải lên ảnh mới nếu bạn muốn thay đổi.</small>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{% url 'song_detail' song.id %}" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
+{% endblock %}
+

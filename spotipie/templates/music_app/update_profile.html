@@ -1,0 +1,37 @@
+{% extends "music_app/base.html" %}
+
+{% block title %}Cập nhật hồ sơ nghệ sĩ{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="section-title mb-4">Cập nhật hồ sơ nghệ sĩ</h2>
+    
+    <form method="POST" enctype="multipart/form-data" action="{% url 'update_profile' %}">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="name" class="form-label">Tên nghệ sĩ</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ artist.name }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="bio" class="form-label">Giới thiệu</label>
+            <textarea class="form-control" id="bio" name="bio" rows="5">{{ artist.bio }}</textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="image" class="form-label">Ảnh đại diện</label>
+            {% if artist.image %}
+                <div class="mb-2">
+                    <img src="{{ artist.image.url }}" style="width: 100px; height: 100px; object-fit: cover;" class="rounded" alt="{{ artist.name }}">
+                </div>
+            {% endif %}
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{% url 'profile' %}" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
+{% endblock %}
+

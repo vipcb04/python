@@ -1,0 +1,100 @@
+{% extends "music_app/base.html" %}
+
+{% block title %}Hồ sơ nghệ sĩ{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Artist Information (Top Section) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dark">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center">
+                            {% if artist.image %}
+                                <img src="{{ artist.image.url }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;" alt="{{ artist.name }}">
+                            {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                                    <i class="fas fa-user fa-4x text-white"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-7">
+                            <h2 class="card-title">{{ artist.name }}</h2>
+                            <p class="card-text">{{ artist.bio|linebreaks|default:"Chưa có thông tin giới thiệu." }}</p>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <a href="{% url 'update_profile' %}" class="btn btn-primary">
+                                <i class="fas fa-edit me-2"></i> Cập nhật thông tin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Songs (Bottom Section) -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="section-title mb-0">Bài hát của bạn</h2>
+                <a href="{% url 'song_form' %}" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-2"></i> Tạo bài hát mới
+                </a>
+            </div>
+            
+            <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+                {% for song in songs %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-img-container">
+                            <a href="{% url 'song_detail' song.id %}" class="card-link">
+                                {% if song.cover_image %}
+                                    <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }}">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/300" class="card-img-top" alt="Album cover">
+                                {% endif %}
+                            </a>
+                            <button class="card-play-button play-song" 
+                                data-song-url="{{ song.audio_file.url }}" 
+                                data-song-title="{{ song.title }}" 
+                                data-song-artist="{{ song.artist.name }}"
+                                data-song-id="{{ song.id }}"
+                                {% if song.cover_image %}
+                                data-song-image="{{ song.cover_image.url }}"
+                                {% endif %}>
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <a href="{% url 'song_detail' song.id %}" class="text-decoration-none">
+                                <h5 class="card-title">{{ song.title }}</h5>
+                            </a>
+                            <p class="card-text">
+                                <small class="text-muted">Đăng tải: {{ song.created_at|date:"d/m/Y" }}</small>
+                            </p>
+                            <div class="btn-group w-100 mt-2">
+                                <a href="{% url 'update_song' song.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <a href="{% url 'delete_song' song.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        Bạn chưa có bài hát nào. Hãy tạo bài hát đầu tiên của bạn!
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

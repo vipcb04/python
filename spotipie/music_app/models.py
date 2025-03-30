@@ -7,7 +7,7 @@ class Artist(models.Model):
     name = models.CharField(max_length=100)
     bio = models.TextField(blank=True)
     image = models.ImageField(upload_to='artists/', blank=True, null=True)
-    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='artist_profile')
     def __str__(self):
         return self.name
 

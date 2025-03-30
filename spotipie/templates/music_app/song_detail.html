@@ -1,87 +1,87 @@
-{% extends 'music_app/base.html' %}
+{% extends "music_app/base.html" %}
 
-{% block title %}{{ song.title }} - Ứng dụng nghe nhạc{% endblock %}
-
-{% block extra_css %}
-<style>
-    /* Màu nền tối và font chữ hiện đại */
-    body {
-        background-color: #121212;
-        color: #FFFFFF;
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    }
-    /* Card chứa thông tin bài hát */
-    .song-card {
-        background-color: #181818;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    }
-    /* Hình ảnh bìa */
-    .song-cover {
-        border-radius: 8px;
-        width: 100%;
-        object-fit: cover;
-    }
-    /* Tiêu đề bài hát */
-    .song-title {
-        font-size: 2rem;
-        font-weight: bold;
-    }
-    /* Tên nghệ sĩ */
-    .artist-name {
-        font-size: 1.2rem;
-        color: #1DB954; /* Màu xanh đặc trưng của Spotify */
-        text-decoration: none;
-    }
-    .artist-name:hover {
-        text-decoration: underline;
-    }
-    /* Nút phát bài hát */
-    .play-song {
-        background-color: #1DB954;
-        border: none;
-        color: #FFFFFF;
-        padding: 10px 20px;
-        font-size: 1rem;
-        border-radius: 50px;
-        transition: background-color 0.3s ease;
-    }
-    .play-song:hover {
-        background-color: #17a44d;
-    }
-    /* Định dạng ngày tạo */
-    .song-date {
-        font-size: 0.9rem;
-        color: #B3B3B3;
-    }
-</style>
-{% endblock %}
+{% block title %}{{ song.title }} - {{ song.artist.name }}{% endblock %}
 
 {% block content %}
-<div class="song-card row mb-4">
-    <div class="col-md-4">
-        {% if song.cover_image %}
-            <img src="{{ song.cover_image.url }}" class="song-cover" alt="{{ song.title }}">
-        {% else %}
-            <div class="bg-secondary text-white text-center p-5 rounded">Không có ảnh</div>
-        {% endif %}
-    </div>
-    <div class="col-md-8 d-flex flex-column justify-content-center">
-        <h1 class="song-title">{{ song.title }}</h1>
-        <h3>
-            <a href="{% url 'artist_detail' song.artist.id %}" class="artist-name">
-                {{ song.artist.name }}
-            </a>
-        </h3>
-        <p class="song-date">Ngày tạo: {{ song.created_at|date:"d/m/Y" }}</p>
-        
-        <button class="btn play-song mt-3 play-song" 
-            data-song-url="{{ song.audio_file.url }}" 
-            data-song-title="{{ song.title }}" 
-            data-song-artist="{{ song.artist.name }}">
-            Phát bài hát
-        </button>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-dark">
+                <div class="card-body text-center">
+                    {% if song.cover_image %}
+                        <img src="{{ song.cover_image.url }}" class="img-fluid rounded mb-3" alt="{{ song.title }}">
+                    {% else %}
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center mb-3" style="height: 300px;">
+                            <i class="fas fa-music fa-5x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <h2 class="card-title">{{ song.title }}</h2>
+                    <p class="card-text">
+                        <a href="{% url 'artist_detail' song.artist.id %}" class="text-decoration-none">
+                            {{ song.artist.name }}
+                        </a>
+                    </p>
+                    <p class="card-text">
+                        <small class="text-muted">Đăng tải: {{ song.created_at|date:"d/m/Y" }}</small>
+                    </p>
+                    
+                    <button class="btn btn-success btn-lg w-100 mb-3 play-song"
+                        data-song-url="{{ song.audio_file.url }}" 
+                        data-song-title="{{ song.title }}" 
+                        data-song-artist="{{ song.artist.name }}"
+                        data-song-id="{{ song.id }}"
+                        {% if song.cover_image %}
+                        data-song-image="{{ song.cover_image.url }}"
+                        {% endif %}>
+                        <i class="fas fa-play me-2"></i> Phát
+                    </button>
+                    
+                    {% if user.is_authenticated and user.artist_profile == song.artist %}
+                    <div class="btn-group w-100">
+                        <a href="{% url 'update_song' song.id %}" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i> Chỉnh sửa
+                        </a>
+                        <a href="{% url 'delete_song' song.id %}" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i> Xóa
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card bg-dark">
+                <div class="card-body">
+                    
+                    
+                    <h3 class="card-title mb-3">Về nghệ sĩ</h3>
+                    <div class="d-flex align-items-center mb-4">
+                        {% if song.artist.image %}
+                            <img src="{{ song.artist.image.url }}" class="rounded-circle me-3" style="width: 64px; height: 64px; object-fit: cover;" alt="{{ song.artist.name }}">
+                        {% else %}
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" style="width: 64px; height: 64px;">
+                                <i class="fas fa-user fa-2x text-white"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h4 class="mb-1">
+                                <a href="{% url 'artist_detail' song.artist.id %}" class="text-decoration-none">
+                                    {{ song.artist.name }}
+                                </a>
+                            </h4>
+                            <p class="text-muted mb-0">Nghệ sĩ</p>
+                        </div>
+                    </div>
+                    
+                    {% if song.artist.bio %}
+                        <p>{{ song.artist.bio|linebreaks }}</p>
+                    {% else %}
+                        <p class="text-muted">Chưa có thông tin giới thiệu.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
+
