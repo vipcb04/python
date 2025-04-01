@@ -19,6 +19,16 @@
         </div>
         
         <div class="mb-3">
+            <label for="genre" class="form-label">Thể loại</label>
+            <select class="form-select" id="genre" name="genre">
+                <option value="">-- Chọn thể loại --</option>
+                {% for genre in genres %}
+                <option value="{{ genre.id }}" {% if song.genre and song.genre.id == genre.id %}selected{% endif %}>{{ genre.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
             <label for="audio_file" class="form-label">File nhạc</label>
             <div class="mb-2">
                 <audio controls style="width: 100%;">
@@ -48,4 +58,3 @@
     </form>
 </div>
 {% endblock %}
-

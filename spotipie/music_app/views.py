@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import Artist, Song, Playlist
+from .models import Artist, Song, Playlist,Genre
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from .forms import ArtistForm
@@ -7,12 +7,23 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 def home(request):
     artists = Artist.objects.all()
-    songs = Song.objects.all().order_by('-created_at')[:10]  
+    songs = Song.objects.all().order_by('-created_at')[:10] 
+    genres = Genre.objects.all() 
     return render(request, 'music_app/home.html', {
         'artists': artists,
-        'songs': songs
+        'songs': songs,
+        'genres': genres
     })
-
+def genre_songs(request, genre_id):
+    genre = get_object_or_404(Genre, id=genre_id)
+    songs = Song.objects.filter(genre=genre).order_by('-created_at')
+    
+    return render(request, 'music_app/home.html', {
+        'songs': songs,
+        'artists': Artist.objects.all(),
+        'genres': Genre.objects.all(),
+        'current_genre': genre
+    })
 def artist_detail(request, pk):
     artist = Artist.objects.get(pk=pk)
     songs = artist.songs.all()
@@ -28,16 +39,28 @@ def song_detail(request, pk):
         'song': song
     })
 def create_form(request):
+    genres = Genre.objects.all()
     
-    return render(request, 'music_app/song_form.html')
+    artist = None
+    if request.user.is_authenticated:
+        artist, created = Artist.objects.get_or_create(
+            user=request.user,
+            defaults={'name': request.user.username}
+        )
+    
+    return render(request, 'music_app/song_form.html', {
+        'genres': genres,
+        'artist': artist
+    })
 @login_required
+
 def add_song(request):
     if request.method == 'POST':
         title = request.POST.get('title')
         audio_file = request.FILES.get('audio_file')
         cover_image = request.FILES.get('cover_image')
+        genre_id = request.POST.get('genre')
         
-       
         artist, created = Artist.objects.get_or_create(
             user=request.user,
             defaults={'name': request.user.username}
@@ -49,6 +72,11 @@ def add_song(request):
             audio_file=audio_file,
             cover_image=cover_image
         )
+        
+        if genre_id:
+            genre = get_object_or_404(Genre, id=genre_id)
+            song.genre = genre
+            
         song.save()
         
         messages.success(request, 'Bài hát đã được tạo thành công!')
@@ -115,12 +143,15 @@ def update_song(request, pk):
     if song.artist != artist:
         messages.error(request, 'Bạn không có quyền chỉnh sửa bài hát này!')
         return redirect('home')
-    
+    genres = Genre.objects.all()
     if request.method == 'POST':
    
         song.title = request.POST.get('title')
-        
-    
+        genre_id = request.POST.get('genre')
+        if genre_id:
+            song.genre = get_object_or_404(Genre, id=genre_id)
+        else:
+            song.genre = None
         if 'audio_file' in request.FILES:
             song.audio_file = request.FILES['audio_file']
        
@@ -132,7 +163,8 @@ def update_song(request, pk):
         return redirect('song_detail', pk=song.pk)
     
     return render(request, 'music_app/update_song.html', {
-        'song': song
+        'song': song,
+        'genres': genres
     })
 @login_required
 def delete_song(request, pk):

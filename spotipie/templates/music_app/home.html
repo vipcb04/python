@@ -36,6 +36,11 @@
                 <a href="{% url 'artist_detail' song.artist.id %}" class="text-decoration-none">
                     <p class="card-text">{{ song.artist.name }}</p>
                 </a>
+                {% if song.genre %}
+                <a href="{% url 'genre_songs' song.genre.id %}" class="text-decoration-none">
+                    <span class="genre-badge">{{ song.genre.name }}</span>
+                </a>
+                {% endif %}
             </div>
         </div>
         {% empty %}
@@ -49,7 +54,6 @@
 <div class="mb-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="section-title">Nghệ sĩ nổi bật</h2>
-       
     </div>
     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-4">
         {% for artist in artists %}
@@ -75,4 +79,59 @@
         {% endfor %}
     </div>
 </div>
+
+{% if genres %}
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="section-title">Thể loại</h2>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-4">
+        {% for genre in genres %}
+        <div class="col">
+            <a href="{% url 'genre_songs' genre.id %}" class="text-decoration-none">
+                <div class="genre-card">
+                    <h3 class="genre-card-title">{{ genre.name }}</h3>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .genre-badge {
+        display: inline-block;
+        background-color: var(--spotify-light-gray);
+        color: var(--spotify-light-white);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+    
+    .genre-card {
+        border-radius: 8px;
+        padding: 20px;
+        height: 100%;
+        min-height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .genre-card:hover {
+        transform: scale(1.05);
+    }
+    
+    .genre-card-title {
+        color: white;
+        font-weight: 700;
+        text-align: center;
+    }
+    
+</style>
 {% endblock %}

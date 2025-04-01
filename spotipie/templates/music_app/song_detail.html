@@ -21,6 +21,13 @@
                             {{ song.artist.name }}
                         </a>
                     </p>
+                    {% if song.genre %}
+                    <p class="card-text">
+                        <a href="{% url 'genre_songs' song.genre.id %}" class="genre-badge">
+                            {{ song.genre.name }}
+                        </a>
+                    </p>
+                    {% endif %}
                     <p class="card-text">
                         <small class="text-muted">Đăng tải: {{ song.created_at|date:"d/m/Y" }}</small>
                     </p>
@@ -52,8 +59,6 @@
         <div class="col-md-8">
             <div class="card bg-dark">
                 <div class="card-body">
-                    
-                    
                     <h3 class="card-title mb-3">Về nghệ sĩ</h3>
                     <div class="d-flex align-items-center mb-4">
                         {% if song.artist.image %}
@@ -85,3 +90,22 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    .genre-badge {
+        display: inline-block;
+        background-color: var(--spotify-light-gray);
+        color: var(--spotify-light-white);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin-top: 4px;
+        text-decoration: none;
+    }
+    
+    .genre-badge:hover {
+        background-color: var(--spotify-green);
+        color: var(--spotify-black);
+    }
+</style>
+{% endblock %}

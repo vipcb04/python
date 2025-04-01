@@ -17,7 +17,15 @@
             <label for="title" class="form-label">Tên bài hát</label>
             <input type="text" class="form-control" id="title" name="title" required>
         </div>
-        
+        <div class="mb-3">
+            <label for="genre" class="form-label">Thể loại</label>
+            <select class="form-select" id="genre" name="genre">
+                <option value="">-- Chọn thể loại --</option>
+                {% for genre in genres %}
+                <option value="{{ genre.id }}">{{ genre.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="mb-3">
             <label for="audio_file" class="form-label">File nhạc</label>
             <input type="file" class="form-control" id="audio_file" name="audio_file" accept="audio/*" required>
